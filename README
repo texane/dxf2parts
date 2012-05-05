@@ -1,0 +1,2 @@
+turn a DXF file into individual parts. each part is all the entity in one layer. the layer
+must have a name consisting only of digits.
