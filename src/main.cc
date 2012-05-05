@@ -94,16 +94,21 @@ public:
     if (_writers.find(d.name) == _writers.end())
     {
       const std::string partname = make_partname(d.name);
-      DL_WriterA* const writer = _dxf->out(partname.c_str(), DL_Codes::AC1015);
+      DL_WriterA* const writer = _dxf->out(partname.c_str(), DL_Codes::VER_2000);
       if (writer != NULL)
       {
 	printf("new part: %s\n", d.name.c_str());
 
+#if 0 // SW10 fails if header written
 	_dxf->writeHeader(*writer);
 	writer->sectionEnd();
+#endif // SW10
 	writer->sectionEntities();
-
 	_writers.insert(writer_map_type::value_type(d.name, writer));
+
+	DL_WriterA* w;
+	DL_Attributes a;
+	if (addCommon(d, w, a)) _dxf->writeLayer(*w, d, a);
       }
     }
   }
@@ -136,9 +141,21 @@ public:
     if (addCommon(d, w, a)) _dxf->writeCircle(*w, d, a);
   }
 
+#if 0 // TODO
+  virtual void addBlock(const DL_BlockData& d)
+  {
+    DL_Attributes a = getAttributes();
+    DL_WriterA* const w = find_part_writer(a.getLayer());
+    if (w == NULL) return ;
+    _dxf->writeBlock(*w, d, a);
+  }
+
+  virtual void endBlock()
+  {
+  }
+#endif
+
 #if 0 // not implemented
-  virtual void addBlock(const DL_BlockData&) {}
-  virtual void endBlock() {}
   virtual void addEllipse(const DL_EllipseData&) {}
   virtual void addPolyline(const DL_PolylineData&) {}
   virtual void addVertex(const DL_VertexData&) {}
